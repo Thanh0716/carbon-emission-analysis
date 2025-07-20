@@ -12,37 +12,42 @@ Our dataset is compiled from publicly available data from nature.com and encompa
 The dataset consists of 4 tables containing information regarding carbon emissions generated during the production of goods.
 
 ## 
+```sql
 INSERT INTO product_emissions (id,company_id,country_id,industry_group_id,`year`,product_name,weight_kg,carbon_footprint_pcf,upstream_percent_total_pcf,operations_percent_total_pcf,downstream_percent_total_pcf) VALUES
 	 ('10056-1-2014',82,28,2,2014,'Frosted Flakes(R) Cereal',0.7485,2,'57.50','30.00','12.50'),
 	 ('10056-1-2015',82,28,15,2015,'"Frosted Flakes, 23 oz, produced in Lancaster, PA (one carton)"',0.7485,2,'57.50','30.00','12.50'),
 	 ('10222-1-2013',83,28,8,2013,'Office Chair',20.68,73,'80.63','17.36','2.01'),
 	 ('10261-1-2017',14,16,25,2017,'Multifunction Printers',110.0,1488,'30.65','5.51','63.84'),
 	 ('10261-2-2017',14,16,25,2017,'Multifunction Printers',110.0,1818,'25.08','4.51','70.41');
+```
 
-
+```sql
 INSERT INTO industry_groups (industry_group) VALUES
 	 ('"Consumer Durables, Household and Personal Products"'),
 	 ('"Food, Beverage & Tobacco"'),
 	 ('"Forest and Paper Products - Forestry, Timber, Pulp and Paper, Rubber"'),
 	 ('"Mining - Iron, Aluminum, Other Metals"'),
 	 ('"Pharmaceuticals, Biotechnology & Life Sciences"');
-
+```
+```sql
 INSERT INTO countries (country_name) VALUES
 	 ('Australia'),
 	 ('Belgium'),
 	 ('Brazil'),
 	 ('Canada'),
 	 ('Chile');
-
+```
+```sql
 INSERT INTO companies (company_name) VALUES
 	 ('"Autodesk, Inc."'),
 	 ('"Casio Computer Co., Ltd."'),
 	 ('"Cisco Systems, Inc."'),
 	 ('"CNX Coal Resources, LP"'),
 	 ('"Coca-Cola Enterprises, Inc."');
-
+```
 
 ###
+```sql
 SELECT *, COUNT(*) AS count_duplicate
   FROM product_emissions
   GROUP BY
@@ -59,6 +64,7 @@ SELECT *, COUNT(*) AS count_duplicate
       		downstream_percent_total_pcf
     HAVING COUNT(*) > 1
     LIMIT 10;
+```
 
 | id           | company_id | country_id | industry_group_id | year | product_name                                                    | weight_kg | carbon_footprint_pcf | upstream_percent_total_pcf                       | operations_percent_total_pcf                     | downstream_percent_total_pcf                     | count_duplicate | 
 | -----------: | ---------: | ---------: | ----------------: | ---: | --------------------------------------------------------------: | --------: | -------------------: | -----------------------------------------------: | -----------------------------------------------: | -----------------------------------------------: | --------------: | 
@@ -75,13 +81,14 @@ SELECT *, COUNT(*) AS count_duplicate
 
 
 ### Which products contribute the most to carbon emissions?
+```sql
 SELECT 
-	  product_name,
-	  ROUND(AVG(carbon_footprint_pcf),2) AS "carbon emission"
+	product_name,
+	ROUND(AVG(carbon_footprint_pcf),2) AS "carbon emission"
 FROM product_emissions pe 
 GROUP BY product_name
 ORDER BY ROUND(AVG(carbon_footprint_pcf),2) DESC;
-
+```
 | product_name                                                                                                                       | carbon emission | 
 | ---------------------------------------------------------------------------------------------------------------------------------: | --------------: | 
 | Wind Turbine G128 5 Megawats                                                                                                       | 3718044.00      | 
@@ -97,17 +104,17 @@ ORDER BY ROUND(AVG(carbon_footprint_pcf),2) DESC;
 
 
 ### hat are the industry groups of these products?
+```sql
 SELECT 
-	  product_name,
-	  industry_groups.industry_group,
-	  ROUND(AVG(carbon_footprint_pcf),2) AS "carbon emission"
-	  
+	product_name,
+	industry_groups.industry_group,
+	ROUND(AVG(carbon_footprint_pcf),2) AS "carbon emission"
 FROM product_emissions pe 
 JOIN industry_groups ON pe.industry_group_id = industry_groups.id
 GROUP BY (pe.product_name)
 ORDER BY ROUND(AVG(carbon_footprint_pcf),2) DESC
 LIMIT 10;
-
+```
 | product_name                                                                                                                       | industry_group                     | carbon emission | 
 | ---------------------------------------------------------------------------------------------------------------------------------: | ---------------------------------: | --------------: | 
 | Wind Turbine G128 5 Megawats                                                                                                       | Electrical Equipment and Machinery | 3718044.00      | 
@@ -123,16 +130,17 @@ LIMIT 10;
 
 
 ### What are the industries with the highest contribution to carbon emissions?
-
+```sql
 SELECT 
-	  i.industry_group,
-	  ROUND(SUM(carbon_footprint_pcf),2) AS "carbon emission"
+	i.industry_group,
+	ROUND(SUM(carbon_footprint_pcf),2) AS "carbon emission"
 	  
 FROM product_emissions pe 
 JOIN industry_groups AS i ON pe.industry_group_id = i.id
 GROUP BY (i.industry_group)
 ORDER BY ROUND(AVG(carbon_footprint_pcf),2) DESC
 LIMIT 10;
+```
 
 | industry_group                                   | carbon emission | 
 | -----------------------------------------------: | --------------: | 
@@ -149,17 +157,17 @@ LIMIT 10;
 
 
 ### What are the companies with the highest contribution to carbon emissions?
-
+```sql
 SELECT 
-	  company_name,
-	  ROUND(SUM(carbon_footprint_pcf),2) AS "carbon emission"
+	company_name,
+	ROUND(SUM(carbon_footprint_pcf),2) AS "carbon emission"
 	  
 FROM product_emissions pe 
 JOIN companies c ON pe.company_id = c.id
 GROUP BY (c.company_name)
 ORDER BY ROUND(AVG(carbon_footprint_pcf),2) DESC
 LIMIT 10;
-
+```
 | company_name                           | carbon emission | 
 | -------------------------------------: | --------------: | 
 | "Gamesa Corporación Tecnológica, S.A." | 9778464.00      | 
@@ -174,17 +182,17 @@ LIMIT 10;
 | CJ Cheiljedang                         | 94817.00        | 
 
 ### What are the countries with the highest contribution to carbon emissions?
-
+```sql
 SELECT 
-	  c.country_name,
-	  ROUND(SUM(carbon_footprint_pcf),2) AS "carbon emission"
+	c.country_name,
+	ROUND(SUM(carbon_footprint_pcf),2) AS "carbon emission"
 	  
 FROM product_emissions pe 
 JOIN countries AS c ON pe.industry_group_id = c.id
 GROUP BY (c.country_name)
 ORDER BY ROUND(AVG(carbon_footprint_pcf),2) DESC
 LIMIT 10;
-
+```
 | country_name | carbon emission | 
 | -----------: | --------------: | 
 | Indonesia    | 9801558.00      | 
@@ -199,10 +207,10 @@ LIMIT 10;
 | Sweden       | 46544.00        | 
 
 ### What is the trend of carbon footprints (PCFs) over the years?
-
+```sql
 SELECT 
-	  ig.industry_group,
-	  SUM(t.avg_carbon_footprint) AS total_industry_emissions  
+	ig.industry_group,
+	SUM(t.avg_carbon_footprint) AS total_industry_emissions  
 FROM (
   	  SELECT
   			industry_group_id,
@@ -215,6 +223,7 @@ JOIN industry_groups ig ON t.industry_group_id = ig.id
 GROUP BY ig.industry_group
 ORDER BY total_industry_emissions DESC
 LIMIT 10;
+```
 
 | industry_group                                   | total_industry_emissions | 
 | -----------------------------------------------: | -----------------------: | 
@@ -231,7 +240,7 @@ LIMIT 10;
 
 
 ### Which industry groups has demonstrated the most notable decrease in carbon footprints (PCFs) over time?
-
+```sql
 SELECT 
     ig.industry_group AS 'Industry Group',
     ROUND(SUM(CASE WHEN pe.year = 2013 THEN pe.carbon_footprint_pcf ELSE 0 END), 2) AS '2013 Emission',
@@ -251,6 +260,7 @@ ORDER BY
     '2015 Emission',
     '2014 Emission',
     '2013 Emission';
+```
 
   | Industry Group                                 | 2013 Emission | 2014 Emission | 2015 Emission | 2016 Emission | 2017 Emission | 
 | ---------------------------------------------: | ------------: | ------------: | ------------: | ------------: | ------------: | 
