@@ -195,6 +195,63 @@ LIMIT 10;
 
 ### 3.5 What are the countries with the highest contribution to carbon emissions?
 ```sql
+SELECT 
+	country_name,
+	ROUND(SUM(carbon_footprint_pcf),2) AS "carbon emissions"
+FROM product_emissions pe
+JOIN countries ON pe.country_id = countries.id
+GROUP BY country_name
+ORDER BY ROUND(SUM(carbon_footprint_pcf),2) DESC
+LIMIT 10;
+```
+| country_name | carbon emissions | 
+| -----------: | ---------------: | 
+| Spain        | 9786130.00       | 
+| Germany      | 2251225.00       | 
+| Japan        | 653237.00        | 
+| USA          | 518381.00        | 
+| South Korea  | 186965.00        | 
+| Brazil       | 169337.00        | 
+| Luxembourg   | 167007.00        | 
+| Netherlands  | 70417.00         | 
+| Taiwan       | 62875.00         | 
+| India        | 24574.00         | 
+
+
+### 3.6 What is the trend of carbon footprints (PCFs) over the years?
+```sql
+SELECT 
+	ig.industry_group,
+	SUM(t.avg_carbon_footprint) AS total_industry_emissions
+FROM (
+	SELECT 
+		industry_group_id,
+		product_name,
+		AVG(carbon_footprint_pcf) AS avg_carbon_footprint
+	FROM product_emissions 
+  	GROUP BY industry_group_id,
+			product_name
+) AS t
+JOIN industry_groups ig ON t.industry_group_id = ig.id
+GROUP BY ig.industry_group
+ORDER BY total_industry_emissions DESC
+LIMIT 10;
+```
+| industry_group                                   | total_industry_emissions | 
+| -----------------------------------------------: | -----------------------: | 
+| Electrical Equipment and Machinery               | 9801558.0000             | 
+| Automobiles & Components                         | 2318945.3333             | 
+| Materials                                        | 408449.8333              | 
+| Technology Hardware & Equipment                  | 252039.7667              | 
+| Capital Goods                                    | 177108.7500              | 
+| "Food, Beverage & Tobacco"                       | 92965.5000               | 
+| "Pharmaceuticals, Biotechnology & Life Sciences" | 72486.0000               | 
+| Chemicals                                        | 44939.0000               | 
+| Software & Services                              | 23683.0000               | 
+| Media                                            | 14139.3333               | 
+
+### 3.7 Which industry groups has demonstrated the most notable decrease in carbon footprints (PCFs) over time?
+```sql
 
 
 ```sql
@@ -366,30 +423,6 @@ LIMIT 10;
 | "Daikin Industries, Ltd."              | 105600.00       | 
 | CJ Cheiljedang                         | 94817.00        | 
 
-### What are the countries with the highest contribution to carbon emissions?
-```sql
-SELECT 
-	c.country_name,
-	ROUND(SUM(carbon_footprint_pcf),2) AS "carbon emission"
-	  
-FROM product_emissions pe 
-JOIN countries AS c ON pe.industry_group_id = c.id
-GROUP BY (c.country_name)
-ORDER BY ROUND(AVG(carbon_footprint_pcf),2) DESC
-LIMIT 10;
-```
-| country_name | carbon emission | 
-| -----------: | --------------: | 
-| Indonesia    | 9801558.00      | 
-| Colombia     | 2582264.00      | 
-| Chile        | 72486.00        | 
-| Finland      | 258712.00       | 
-| Malaysia     | 577595.00       | 
-| Canada       | 8181.00         | 
-| Ireland      | 10774.00        | 
-| France       | 62369.00        | 
-| Netherlands  | 23017.00        | 
-| Sweden       | 46544.00        | 
 
 ### What is the trend of carbon footprints (PCFs) over the years?
 ```sql
